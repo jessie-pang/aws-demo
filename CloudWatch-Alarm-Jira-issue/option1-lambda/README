@@ -1,0 +1,9 @@
+CloudWatch Alarm -> SNS -> Lambda -> Jira Rest APIs
+
+Step-by-step:
+1. Create a CloudWatch alarm with necessary metrics and thresholds;
+2. Configure SNS as the target of above Cloudwatch alarm;
+3. Configure Lambda as the target of above SNS;
+4. Create Lambda with the code in this repo;
+5. Create Lambda Environment variables as explained;
+6. Create a Lambda layer for Python 'requests' library.
