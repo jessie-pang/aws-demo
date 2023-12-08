@@ -1,0 +1,28 @@
+"ISSUE_TYPE":	<issue_type_id>
+"JIRA_API_TOKEN" : <API_token>
+"JIRA_DOMAIN" :	<domain_name>
+"JIRA_USER" : <user_name>
+"PROJECT_KEY" : <project_key>
+
+Note:
+For "ISSUE_TYPE", you have below options:
+{
+  "id": "10009",
+  "name": "Task"
+}
+{
+  "id": "10007",
+  "name": "Ask a question"
+}
+{
+  "id": "10010",
+  "name": "Sub-task"
+}
+{
+  "id": "10006",
+  "name": "Submit a request or incident"
+}
+{
+  "id": "10008",
+  "name": "Emailed request"
+}
