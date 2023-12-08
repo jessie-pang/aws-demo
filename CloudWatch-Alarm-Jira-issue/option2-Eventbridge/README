@@ -1,0 +1,60 @@
+ CloudWatch Alarm -> EventBridge rule -> EventBridge API destination (Jira Rest API)
+
+Step-by-step:
+1. Create a Cloudwatch alarm;
+2. Create an Eventbridge rule with following settings:
+
+Event pattern:
+{
+  "source": ["aws.cloudwatch"],
+  "detail-type": ["CloudWatch Alarm State Change"],
+  "resources": ["<ARN of your cloudwatch alarm>"],
+  "detail": {
+    "state": {
+      "value": ["ALARM"]
+    }
+  }
+}
+
+Target types: EventBridge API destination
+API destination endpoint: https://<your_domain_name>.atlassian.net/rest/api/3/issue/
+Connection: Your user name and API token
+Header Parameters: 
+key: Content-Type
+Value: application/json
+
+Configure target input: input transformer
+
+Input path:
+{"alarmName":"$.detail.alarmName","metricName":"$.detail.configuration.metrics[0].metricStat.metric.name","reason":"$.detail.state.reason"}
+
+Template:
+{
+    "fields": {
+        "project": {
+            "key": "JC"
+        },
+        "issuetype": {
+            "id": "10009"
+        },
+        "summary": "From EventBridge: <alarmName> Alarm Triggered",
+        "description": {
+            "version": 1,
+            "type": "doc",
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "The alarm <alarmName> was triggered due to metric <metricName> exceeding the threshold.\nReason: <reason>"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+
+
