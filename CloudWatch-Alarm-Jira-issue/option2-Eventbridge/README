@@ -1,4 +1,4 @@
- CloudWatch Alarm -> EventBridge rule -> EventBridge API destination (Jira Rest API)
+CloudWatch Alarm -> EventBridge rule -> EventBridge API destination (Jira Rest API)
 
 Step-by-step:
 1. Create a Cloudwatch alarm;
