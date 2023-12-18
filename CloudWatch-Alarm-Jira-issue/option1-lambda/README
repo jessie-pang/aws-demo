@@ -7,3 +7,10 @@ Step-by-step:
 4. Create Lambda with the code in this repo;
 5. Create Lambda Environment variables as explained;
 6. Create a Lambda layer for Python 'requests' library.
+
+Test:
+1. Run the following command to beat up EC2 CPU for 5 minutes:
+stress --cpu 2 --timeout 300s
+2. Check CloudWatch Alarm, and confirm it has been changed from 'OK' to 'In Alarm';
+3. Check Lambda metrics: it should be triggered;
+4. Confirm new issue has been opened in Jira. If not, check Lambda logs for any clues.
