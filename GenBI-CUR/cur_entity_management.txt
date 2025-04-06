@@ -1,0 +1,38 @@
+#### EC2 RI Coverage (覆盖率)
+
+EC2 RI Coverage % shows how much of your overall instance usage is covered by Reserved Instances. It’s calculated by dividing Reserved Instance hours (line_item_usage_amount) used by the total EC2 On-Demand and Reserved Instance hours.
+
+计算方法：在EC2的实例运行用量（line_item_operation LIKE '%RunInstances%'）中，计算 Reserved Instance hours/total EC2 On-Demand and Reserved Instance hours
+其中，
+Reserved Instance hours 等于 SUM(CASE
+    WHEN line_item_line_item_type = 'DiscountedUsage' THEN line_item_usage_amount
+    ELSE 0
+  END)
+total EC2 On-Demand and Reserved Instance hours 等于 SUM(CASE
+    WHEN line_item_line_item_type IN ('Usage', 'DiscountedUsage') THEN line_item_usage_amount
+    ELSE 0
+  END)
+  
+  
+#### Amortized Cost (摊销后的费用)
+
+Amortized Cost (摊销后的费用)，是指将RI和Savings Plan的预付费摊销到每个月。
+Amortized Cost =
+被Savings Plans覆盖的费用：WHEN (line_item_line_item_type = 'SavingsPlanCoveredUsage') THEN savings_plan_savings_plan_effective_cost
+未使用的Savings Plan费用：WHEN (line_item_line_item_type = 'SavingsPlanRecurringFee') THEN (savings_plan_total_commitment_to_date - savings_plan_used_commitment)
+被RI覆盖的费用：WHEN (line_item_line_item_type = 'DiscountedUsage') THEN reservation_effective_cost
+未使用的RI费用：WHEN (line_item_line_item_type = 'RIFee') THEN (reservation_unused_amortized_upfront_fee_for_billing_period + reservation_unused_recurring_fee)
+Savings Plan和RI预付费计算为0：
+WHEN (line_item_line_item_type = 'SavingsPlanNegation') THEN 0
+WHEN (line_item_line_item_type = 'SavingsPlanUpfrontFee') THEN 0
+WHEN ((line_item_line_item_type = 'Fee') AND (reservation_reservation_a_r_n <> '')) THEN 0 
+其他包括on-demand费用，均按原始成本计算：
+ELSE line_item_unblended_cost
+
+
+#### EC2 RI and Savings Plan Savings (EC2 RI 和 Savings Plans 所节省的费用)
+
+EC2 RI and Savings Plan Savings (EC2 RI 和 Savings Plans 所节省的费用)，是计算EC2在被RI或Savings Plan覆盖之前本来的public on-demand费用，减去被覆盖之后的RI或Savings Plan effective cost 收费，计算差值。
+计算方式为：下面两个值相加
+被RI覆盖之前本来的public on-demand费用减去被RI覆盖后收取的费用：WHEN line_item_line_item_type = 'DiscountedUsage' THEN pricing_public_on_demand_cost - reservation_effective_cost
+被Savings Plan覆盖之前本来的public on-demand费用减去被RI覆盖后收取的费用：WHEN line_item_line_item_type = 'SavingsPlanCoveredUsage' THEN pricing_public_on_demand_cost - savings_plan_savings_plan_effective_cost
