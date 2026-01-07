@@ -480,8 +480,6 @@ aws configservice delete-config-rule \
 7. ✅ **规则参数统一管理** - 通过 CloudFormation 参数控制
 8. ✅ **成员账户无法修改规则** - 通过 SCP 强制保护
 
-**无需额外的 DynamoDB、Lambda 编排等复杂组件，纯 StackSets + EventBridge + SCP 即可实现。**
-
 ---
 
 ## 清理资源
