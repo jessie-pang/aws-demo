@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Test Organization Config Rules - Updated Version (3 -> 4 rules)
+
+Parameters:
+  CentralLambdaArn:
+    Type: String
+    Description: ARN of the central Lambda function for custom rule
+
+Resources:
+  # Managed Rule 1: S3 Bucket Encryption
+  S3EncryptionRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: test-org-s3-encryption
+      Description: Checks that S3 buckets have encryption enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+
+  # Managed Rule 2: S3 Public Read Prohibited
+  S3PublicReadRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: test-org-s3-public-read-prohibited
+      Description: Checks that S3 buckets do not allow public read access
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+
+  # Custom Rule: S3 Bucket Tag Check
+  CustomS3TagRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: test-org-custom-s3-tag-check
+      Description: Checks that S3 buckets have required Environment tag
+      Source:
+        Owner: CUSTOM_LAMBDA
+        SourceIdentifier: !Ref CentralLambdaArn
+        SourceDetails:
+          - EventSource: aws.config
+            MessageType: ConfigurationItemChangeNotification
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+
+  # NEW: Managed Rule 3: S3 Bucket Versioning
+  S3VersioningRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: test-org-s3-versioning-enabled
+      Description: Checks that S3 buckets have versioning enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_VERSIONING_ENABLED
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+
+Outputs:
+  ManagedRule1:
+    Description: S3 Encryption Rule Name
+    Value: !Ref S3EncryptionRule
+  
+  ManagedRule2:
+    Description: S3 Public Read Rule Name
+    Value: !Ref S3PublicReadRule
+  
+  ManagedRule3:
+    Description: S3 Versioning Rule Name (NEW)
+    Value: !Ref S3VersioningRule
+  
+  CustomRule:
+    Description: Custom S3 Tag Rule Name
+    Value: !Ref CustomS3TagRule
