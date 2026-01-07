@@ -1,0 +1,50 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyConfigRuleModification",
+      "Effect": "Deny",
+      "Action": [
+        "config:DeleteConfigRule",
+        "config:PutConfigRule"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "config:ConfigRuleName": "test-org-*"
+        },
+        "StringNotEquals": {
+          "aws:PrincipalAccount": "${ManagementAccountId}"
+        }
+      }
+    },
+    {
+      "Sid": "DenyConfigRecorderDeletion",
+      "Effect": "Deny",
+      "Action": [
+        "config:DeleteConfigurationRecorder",
+        "config:StopConfigurationRecorder"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:PrincipalAccount": "${ManagementAccountId}"
+        }
+      }
+    },
+    {
+      "Sid": "DenyStackSetStackDeletion",
+      "Effect": "Deny",
+      "Action": [
+        "cloudformation:DeleteStack",
+        "cloudformation:UpdateStack"
+      ],
+      "Resource": "arn:aws-cn:cloudformation:*:*:stack/StackSet-test-org-config-rules-*/*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:PrincipalAccount": "${ManagementAccountId}"
+        }
+      }
+    }
+  ]
+}
