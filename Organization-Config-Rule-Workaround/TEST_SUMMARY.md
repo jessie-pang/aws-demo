@@ -1,6 +1,19 @@
 # CloudFormation StackSets 实现 Organizations Config Rules 测试总结
 
-## 测试结果：✅ 全部成功
+## 测试结果：✅ 部分功能已验证
+
+**测试状态总览:**
+
+| 功能 | 测试状态 | 说明 |
+|------|----------|------|
+| 集中部署 | ✅ 已验证 | 成功部署到 2 个账户 |
+| 集中更新 | ✅ 已验证 | 3条规则更新到4条 |
+| 集中查看 | ✅ 已验证 | 从模板提取规则 |
+| 删除账户 | ✅ 已验证 | 成功删除并重新添加 |
+| 添加新账户（手动） | ✅ 已验证 | 自动继承所有规则 |
+| 添加新账户（自动） | 📋 未测试 | 无 Organizations 权限 |
+| Custom Rule Lambda | ✅ 已验证 | 跨账户调用成功 |
+| SCP 保护 | 📋 未测试 | 无 SCP 权限 |
 
 ### 部署的资源
 
@@ -149,7 +162,7 @@ aws cloudformation delete-stack-instances \
 
 ---
 
-### ✅ 5. 添加新账户（自动继承规则）
+### ✅ 5. 添加新账户（自动继承规则）- 手动方式已验证
 - 为 StackSet 添加新的账户实例
 - 新账户自动继承所有当前规则
 - 支持手动和自动两种方式
@@ -240,11 +253,16 @@ REGIONS=cn-northwest-1,cn-north-1
 - ✅ 确保所有账户合规性一致
 - ✅ 减少人为错误
 
-**测试结果:**
+**测试结果（手动方式）:**
 - 账户 1235XXXX1342 重新加入
 - 自动继承了所有 4 条规则（包括更新后添加的第 4 条）
 - 所有规则状态: ACTIVE
 - 部署时间: 约 60 秒
+
+**自动化方式（未测试）:**
+- 由于账户权限限制，无法测试 Organizations 创建子账户的场景
+- 已提供完整的 EventBridge + Lambda 自动化方案代码和配置
+- 建议客户在有权限的环境中测试验证
 
 ---
 
@@ -256,7 +274,7 @@ REGIONS=cn-northwest-1,cn-north-1
 
 ---
 
-### ✅ 7. 成员账户无法修改或删除组织规则
+### 📋 7. 成员账户无法修改或删除组织规则（未测试）
 
 通过 **Service Control Policy (SCP)** 限制成员账户对组织规则的操作权限。
 
@@ -348,9 +366,12 @@ aws organizations attach-policy \
   --target-id ou-xxxx-xxxxxxxx  # 或特定账户 ID
 ```
 
-**验证 SCP 效果:**
+**验证 SCP 效果（未测试）:**
 
-在成员账户中尝试删除规则（应该被拒绝）：
+⚠️ **由于账户权限限制，无法测试 SCP 策略效果**
+
+建议客户在有 Organizations 管理权限的环境中验证：
+
 ```bash
 # 在成员账户执行（应该失败）
 aws configservice delete-config-rule \
@@ -361,6 +382,8 @@ aws configservice delete-config-rule \
 # An error occurred (AccessDeniedException) when calling the DeleteConfigRule operation: 
 # User is not authorized to perform: config:DeleteConfigRule
 ```
+
+已提供完整的 SCP 策略示例和部署步骤，供客户参考实施。
 
 **注意事项:**
 
