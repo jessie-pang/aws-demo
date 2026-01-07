@@ -88,9 +88,10 @@ aws iam create-role \
     }]
   }'
 
-aws iam attach-role-policy \
+aws iam put-role-policy \
   --role-name AWSCloudFormationStackSetExecutionRole \
-  --policy-arn arn:aws-cn:iam::aws:policy/AdministratorAccess
+  --policy-name ConfigRulesStackSetPolicy \
+  --policy-document file:///tmp/stackset-test/stackset-execution-role-policy.json
 ```
 
 ### 阶段 2: 部署 Config Rules
